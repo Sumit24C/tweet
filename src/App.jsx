@@ -1,32 +1,36 @@
-import { CircularProgress, Box, Container, Popper, Modal, Button } from '@mui/material';
-import { useEffect, useState } from 'react'
-import { login as appwriteLogin, getCurrentUser } from './appwrite/auth'
-import { login as authLogin } from './store/authSlice'
-import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
-import './App.css'
-import { Header } from './pages/index';
-import { AddTweet } from './components/index';
+import { CircularProgress, Box, Modal, Button } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { getCurrentUser } from './appwrite/auth';
+import { login as authLogin } from './store/authSlice';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import './App.css';
+import { AddTweet, Header } from './components/index';
+
 function App() {
-  const [loading, setLoading] = useState(true)
-  const [isOpen, setIsOpen] = useState(false)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const userData = useSelector((state) => state.auth.userData);
 
   useEffect(() => {
     getCurrentUser()
-      .then((userData) => {
-        if (userData) {
-          dispatch(authLogin(userData))
+      .then((user) => {
+        if (user) {
+          dispatch(authLogin(user));
           if (location.pathname === '/login') {
-            navigate('/')
+            navigate('/');
           }
-        } else navigate('/login')
+        } else {
+          navigate('/login');
+        }
       })
-      .catch((error) => console.log('login :: error', error))
-      .finally(() => setLoading(false))
-  }, [navigate])
+      .catch((error) => console.error('login error:', error))
+      .finally(() => setLoading(false));
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -36,8 +40,7 @@ function App() {
           justifyContent: 'center',
           alignItems: 'center',
           height: '100vh',
-          backgroundColor: '#121212',
-          margin: 0
+          bgcolor: '#121212',
         }}
       >
         <CircularProgress color="primary" />
@@ -46,37 +49,26 @@ function App() {
   }
 
   return (
-    <Box sx={{ margin: 0, padding: 0, minHeight: '100vh' }}>
-      <Header />
-      <Button
-        onClick={() => setIsOpen(true)}
+    <Box sx={{ margin: 0, padding: 0, minHeight: '100vh', bgcolor: '#121212' }}>
+      {/* Fixed Header */}
+      <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1100 }}>
+        <Header />
+      </Box>
+
+      {/* Scrollable Main Content */}
+      <Box
         sx={{
-          backgroundColor: '#2c1a40',
-          color: '#e0d4ff',
-          mx: 1,
-          border: '1px solid rgba(255,255,255,0.2)',
-          borderRadius: 2,
-          textTransform: 'capitalize',
-          '&:hover': {
-            backgroundColor: '#2c1a40',
-            borderColor: '#ba68c8',
-          },
+          pt: '72px', // push below fixed Header (64px AppBar + margin)
+          px: 2,
+          pb: 4,
         }}
       >
-        Create
-      </Button>
-      < Modal
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-      >
-        <AddTweet closeModal={() => setIsOpen(false)} />
-      </Modal>
-      <main>
         <Outlet />
-      </main>
+      </Box>
+
+
     </Box>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
@@ -17,6 +17,7 @@ import ImageIcon from '@mui/icons-material/Image'
 
 function AddTweet({ tweet, closeModal }) {
     const userData = useSelector((state) => state.auth.userData)
+
     const [loading, setLoading] = useState(false)
     const { register, handleSubmit, reset } = useForm()
     const navigate = useNavigate()
@@ -30,7 +31,8 @@ function AddTweet({ tweet, closeModal }) {
                 const tweetData = {
                     ...data,
                     tweetImage: fileId,
-                    userId: userData.$id
+                    userId: userData.$id,
+                    username: userData.name,
                 }
                 const postTweet = await createTweet(tweetData)
                 reset()

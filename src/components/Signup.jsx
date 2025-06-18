@@ -46,7 +46,7 @@ function Signup() {
                     variant="outlined"
                     type='text'
                     {...register('username', { required: 'username is required' })}
-                    error={errors.username.message}
+                // error={errors.username.message}
                 />
                 <TextField
                     id="email"

@@ -1,5 +1,6 @@
-import { Client, Account, ID } from "appwrite";
+import { Client, Account, Databases, ID } from "appwrite";
 import conf from "../conf/conf";
+import { useSelector } from "react-redux";
 
 const client = new Client()
     .setEndpoint(conf.appwriteUrl)
@@ -20,6 +21,25 @@ export const createAccount = async ({ username, email, password }) => {
         throw error
     }
 }
+
+// export const createUserDocumnent = async ({ username, email }, appwriteUserId) => {
+//     try {
+//         const userData = await database.createDocument(
+//             conf.appwriteDatabaseId,
+//             conf.appwriteUsersCollectionId,
+//             ID.unique(),
+//             {
+//                 username,
+//                 email,
+//                 appwriteUserId
+//             }
+//         )
+//         return userData
+//     } catch (error) {
+//         console.log("appwriteError :: createUserDocument :: error", error)
+//         throw error
+//     }
+// }
 
 export const login = async ({ email, password }) => {
     try {
