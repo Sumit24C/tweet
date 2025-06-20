@@ -19,7 +19,7 @@ function Header() {
     const userData = useSelector((state) => state.auth.userData);
 
     const navItems = [
-        { path: '/home', name: 'Home' },
+        { path: '/', name: 'Home' },
         { path: '/profile', name: 'Profile' },
     ];
 
@@ -38,13 +38,14 @@ function Header() {
         <AppBar
             position="fixed"
             sx={{
+                height: '9vh',
                 backgroundColor: '#121212',
                 boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
                 zIndex: 1200,
                 px: 2,
             }}
         >
-            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Toolbar sx={{ display: 'flex', height: '9vh', justifyContent: 'space-between' }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', letterSpacing: 1 }}>
                     Tweetly
                 </Typography>
@@ -91,11 +92,11 @@ function Header() {
                                     bgcolor: '#ba68c8',
                                 }}
                             >
-                                {userData.name?.[0] || 'unknown'}
+                                {userData ? userData.name?.[0] : 'unknown'}
                             </Avatar>
                         }
                     >
-                        {userData.name}
+                        {userData ? userData.name : 'unknown'}
                     </Button>
 
                     <Popover

@@ -1,32 +1,62 @@
-import React from 'react'
-import { createBrowserRouter } from 'react-router-dom'
-import App from './App'
-import { Login, Signup } from './components/index'
-import { Profile, Home } from './pages/index'
-import AddTweet from './components/AddTweet'
+import React from 'react';
+import { createBrowserRouter } from 'react-router-dom';
+import App from './App';
+import { TweetForm, AuthLayout, MyPosts, FollowCard } from './components/index';
+import { Profile, Home, Login, Signup, Follow } from './pages/index';
 
 const AppRouter = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: (
+      <AuthLayout authentication={true}>
+        <App />
+      </AuthLayout>
+    ),
     children: [
       {
-        path: 'add-tweet',
-        element: <AddTweet />
+        index: true, // This makes it `/`
+        element: <Home />,
       },
       {
-        path: 'home',
-        element: <Home />
-      }, {
+        path: 'add-tweet',
+        element: <TweetForm />,
+      },
+      {
         path: 'profile',
-        element: <Profile />
-      }
-    ]
-  }, {
-    path: '/login', element: <Login />
-  }, {
-    path: '/signup', element: <Signup />
-  }
-])
+        element: <Profile />,
+        children: [
+          {
+            index: true,
+            element: <MyPosts />
+          },
+          {
+            path: 'followers',
+            element: <Follow path={'followers'} />
+          },
+          {
+            path: 'following',
+            element: <Follow path={'following'} />
+          }
+        ]
+      },
+    ],
+  },
+  {
+    path: '/login',
+    element: (
+      <AuthLayout authentication={false}>
+        <Login />
+      </AuthLayout>
+    ),
+  },
+  {
+    path: '/signup',
+    element: (
+      <AuthLayout authentication={false}>
+        <Signup />
+      </AuthLayout>
+    ),
+  },
+]);
 
-export default AppRouter
+export default AppRouter;

@@ -4,14 +4,16 @@ import {
     IconButton,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { useDispatch } from 'react-redux';
 
 function DeleteCommentBtn({ commentId, setComment }, ref) {
     const [loading, setLoading] = useState(false)
-
+    const dispatch = useDispatch()
     const handleDeleteBtn = async () => {
         setLoading(true)
         try {
             await deleteComment(commentId)
+            dispatch(deleteComment(commentId))
         } catch (error) {
             console.log("handleDelete :: deleteComment :: error", error)
             throw error

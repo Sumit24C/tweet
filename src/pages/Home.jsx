@@ -2,30 +2,29 @@ import { CircularProgress, Box, Modal, Button, Container } from '@mui/material';
 import React, { useEffect, useState, useRef } from 'react'
 import { getAllTweets } from '../appwrite/services'
 import { useSelector } from 'react-redux'
-import { CreatePostBtn, AddTweet, TweetCard } from '../components/index'
+import { CreatePostBtn, TweetForm, TweetCard } from '../components/index'
 
 
 function Home() {
-    const [tweets, setTweeets] = useState([])
-    const [loading, setLoading] = useState(false)
-    const userData = useSelector((state) => state.auth.userData)
+    const [tweets, setTweets] = useState([])
+    const [loading, setLoading] = useState(true)
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef()
+    const storeTweets = useSelector((state) => state.tweet.tweets)
+    const authStatus = useSelector((state) => state.auth.status)
     useEffect(() => {
-        console.log(userData.name)
-    }, [])
-
-    useEffect(() => {
-        setLoading(true)
-        getAllTweets()
-            .then((tweets) => {
-                if (tweets) {
-                    setTweeets(tweets.documents)
-                }
-            })
-            .catch((err) => console.log("getTweet :: error", err))
-            .finally(() => setLoading(false))
-    }, [tweets])
+        if (authStatus) {
+            setLoading(true)
+            getAllTweets()
+                .then((tweets) => {
+                    if (tweets) {
+                        setTweets(tweets.documents)
+                    }
+                })
+                .catch((err) => console.log("getTweet :: error", err))
+                .finally(() => setLoading(false))
+        }
+    }, [storeTweets, authStatus])
 
     return (
         <>
@@ -35,7 +34,7 @@ function Home() {
                 onClose={() => setIsOpen(false)}
                 sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200 }}
             >
-                <AddTweet closeModal={() => setIsOpen(false)} />
+                <TweetForm closeModal={() => setIsOpen(false)} />
             </Modal>
             <Container
                 maxWidth={false}

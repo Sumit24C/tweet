@@ -1,28 +1,35 @@
-import Login from "./Login";
-import Signup from "./Signup";
+
 import Header from "./Header";
 import LogoutBtn from "./LogoutBtn";
-import AddTweet from './AddTweet'
+import TweetForm from './TweetForm'
 import TweetCard from "./TweetCard";
 import ReactionCounter from './ReactionCounter'
-import AddComment from "./AddComment";
+import CommentForm from "./CommentForm";
 import AllComments from "./AllComments";
 import CreatePostBtn from "./CreatePostBtn";
 import DeleteTweetBtn from "./DeleteTweetBtn";
 import DeleteCommentBtn from "./DeleteCommentBtn";
 import FollowBtn from "./FollowBtn";
+import CommentCard from "./CommentCard";
+import AuthLayout from "./AuthLayout";
+import MyPosts from './MyPosts'
+import FollowCard from './FollowCard'
+import NavTabs from "./NavTabs";
 export {
-    Login,
-    Signup,
     LogoutBtn,
     Header,
-    AddTweet,
     TweetCard,
+    TweetForm,
     ReactionCounter,
-    AddComment,
+    CommentForm,
     AllComments,
     CreatePostBtn,
     DeleteCommentBtn,
     DeleteTweetBtn,
     FollowBtn,
+    CommentCard,
+    AuthLayout,
+    MyPosts,
+    FollowCard,
+    NavTabs
 }

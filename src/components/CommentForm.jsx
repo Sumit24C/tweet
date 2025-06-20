@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import {
     Avatar,
@@ -13,11 +13,13 @@ import ImageIcon from '@mui/icons-material/Image';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import SendIcon from '@mui/icons-material/Send';
 import { createComment, createTweet } from '../appwrite/services';
+import { addComment } from '../store/commentSlice';
 
-function AddComment({ tweetId, userId, username }) {
+function CommentForm({ tweetId, userId, username, setComment }) {
     const { register, handleSubmit, reset } = useForm();
     const [loading, setLoading] = useState(false);
     const userData = useSelector((state) => state.auth.userData);
+    const dispatch = useDispatch()
 
     const create = async (data) => {
         setLoading(true);
@@ -29,6 +31,7 @@ function AddComment({ tweetId, userId, username }) {
                 username,
             };
             const postComment = await createComment(commentData);
+            dispatch(addComment(postComment))
             console.log(postComment)
             reset();
         } catch (error) {
@@ -100,4 +103,4 @@ function AddComment({ tweetId, userId, username }) {
     );
 }
 
-export default AddComment;
+export default CommentForm;

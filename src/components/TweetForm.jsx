@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
-import { createTweet, uploadFile } from '../appwrite/services'
 import {
     Box,
     Button,
@@ -14,29 +12,50 @@ import {
     CircularProgress,
 } from '@mui/material'
 import ImageIcon from '@mui/icons-material/Image'
+import CloseIcon from '@mui/icons-material/Close'
+import { createTweet, uploadFile } from '../appwrite/services'
+import { addTweet } from '../store/tweetSlice'
 
-function AddTweet({ tweet, closeModal }) {
+function TweetForm({ tweet, closeModal }) {
     const userData = useSelector((state) => state.auth.userData)
-
     const [loading, setLoading] = useState(false)
-    const { register, handleSubmit, reset } = useForm()
-    const navigate = useNavigate()
+    const [selectedImage, setSelectedImage] = useState(null)
+    const [imagePreview, setImagePreview] = useState(null)
+
+    const { register, handleSubmit, reset, setValue, watch } = useForm()
+    const dispatch = useDispatch()
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+            setSelectedImage(file)
+            setImagePreview(URL.createObjectURL(file))
+            setValue('image', [file]) // Update form state for consistency
+        }
+    }
+
+    const removeImage = () => {
+        setSelectedImage(null)
+        setImagePreview(null)
+        setValue('image', []) // Clear file from form
+    }
 
     const create = async (data) => {
         setLoading(true)
         try {
             if (!tweet) {
-                const file = data.image?.[0] ? await uploadFile(data.image[0]) : null
-                const fileId = file?.$id
+                const file = selectedImage ? await uploadFile(selectedImage) : null
                 const tweetData = {
                     ...data,
-                    tweetImage: fileId,
+                    tweetImage: file?.$id || null,
                     userId: userData.$id,
                     username: userData.name,
-                }
+                };
                 const postTweet = await createTweet(tweetData)
+                dispatch(addTweet(postTweet))
                 reset()
-                console.log(postTweet)
+                setSelectedImage(null)
+                setImagePreview(null)
                 closeModal?.()
             }
         } catch (error) {
@@ -65,6 +84,7 @@ function AddTweet({ tweet, closeModal }) {
                     </Typography>
 
                     <TextField
+                        autoFocus
                         placeholder="What's on your mind?"
                         multiline
                         minRows={4}
@@ -86,26 +106,63 @@ function AddTweet({ tweet, closeModal }) {
                         {...register('content', { required: true })}
                     />
 
+                    {imagePreview && (
+                        <Box
+                            sx={{
+                                position: 'relative',
+                                width: '100%',
+                                textAlign: 'center',
+                                borderRadius: 2,
+                                overflow: 'hidden',
+                                backgroundColor: '#2c1a40',
+                                p: 1
+                            }}
+                        >
+                            <img
+                                src={imagePreview}
+                                alt="Preview"
+                                style={{
+                                    maxWidth: '100%',
+                                    borderRadius: 8,
+                                    marginBottom: '8px'
+                                }}
+                            />
+                            <IconButton
+                                onClick={removeImage}
+                                sx={{
+                                    position: 'absolute',
+                                    top: 8,
+                                    right: 8,
+                                    backgroundColor: '#00000088',
+                                    color: 'white',
+                                    '&:hover': {
+                                        backgroundColor: '#000000cc'
+                                    }
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </Box>
+                    )}
                     <Box textAlign="center">
                         <input
                             id="image"
                             type="file"
                             accept="image/*"
                             style={{ display: 'none' }}
-                            {...register('image')}
+                            onChange={handleImageChange}
                         />
                         <label htmlFor="image">
                             <IconButton
                                 component="span"
-                                sx={{
-                                    color: '#e0d4ff',
-                                    transition: '0.3s',
-                                }}
+                                sx={{ color: '#e0d4ff', transition: '0.3s' }}
                             >
                                 <ImageIcon fontSize="large" />
                             </IconButton>
                         </label>
                     </Box>
+
+                    {/* Preview & Remove Button */}
 
                     <Button
                         sx={{
@@ -125,8 +182,7 @@ function AddTweet({ tweet, closeModal }) {
                 </Stack>
             </Box>
         </Container>
-
     )
 }
 
-export default AddTweet
+export default TweetForm

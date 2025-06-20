@@ -22,25 +22,6 @@ export const createAccount = async ({ username, email, password }) => {
     }
 }
 
-// export const createUserDocumnent = async ({ username, email }, appwriteUserId) => {
-//     try {
-//         const userData = await database.createDocument(
-//             conf.appwriteDatabaseId,
-//             conf.appwriteUsersCollectionId,
-//             ID.unique(),
-//             {
-//                 username,
-//                 email,
-//                 appwriteUserId
-//             }
-//         )
-//         return userData
-//     } catch (error) {
-//         console.log("appwriteError :: createUserDocument :: error", error)
-//         throw error
-//     }
-// }
-
 export const login = async ({ email, password }) => {
     try {
         const session = await account.createEmailPasswordSession(email, password)
@@ -70,7 +51,7 @@ export const getCurrentUser = async () => {
         if (userData) {
             return userData
         }
-        return null
+        return ""
     } catch (error) {
         console.log("appwriteError :: getCurrentUser :: error", error)
         return false

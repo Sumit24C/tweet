@@ -27,6 +27,7 @@ export const createTweet = async ({ content, tweetImage, reactionCount, userId, 
     }
 }
 
+
 export const getAllTweets = async (queries = [Query.orderDesc("$createdAt")]) => {
     try {
         return await database.listDocuments(
@@ -56,14 +57,47 @@ export const updateTweet = async (tweetId, { data }) => {
     }
 }
 
-export const deleteTweet = async (tweetId) => {
+export const deleteTweet = async (tweetId, tweetImage) => {
     try {
+        if (tweetImage) {
+            await deleteFile(tweetImage)
+        }
+
+        await deleteCommentWithTweet(tweetId)
+
         await database.deleteDocument(
             conf.appwriteDatabaseId,
             conf.appwriteTweetsCollectionId,
             tweetId
         )
         return true
+
+    } catch (error) {
+        console.log("appwriteError :: updateTweet :: error", error)
+        throw error
+    }
+}
+
+export const deleteCommentWithTweet = async (tweetId = "") => {
+    try {
+        const commentList = await database.listDocuments(
+            conf.appwriteDatabaseId,
+            conf.appwriteCommentsCollectionId,
+            [Query.equal('tweetId', tweetId)]
+        )
+        if (commentList) {
+            const deletionPromise = commentList.documents.map(async (comment) => {
+                await database.deleteDocument(
+                    conf.appwriteDatabaseId,
+                    conf.appwriteCommentsCollectionId,
+                    comment.$id
+                )
+            })
+
+            await Promise.all(deletionPromise)
+            return true
+        }
+        return false
     } catch (error) {
         console.log("appwriteError :: updateTweet :: error", error)
         throw error
@@ -114,15 +148,15 @@ export const deleteComment = async (commentId) => {
 }
 //Followers services
 
-export const createFollow = async ({ followerId, followingId }) => {
+export const createFollow = async ({ followerId, followingId, followerName, followingName }) => {
     try {
-        const comment = await database.createDocument(
+        const follow = await database.createDocument(
             conf.appwriteDatabaseId,
             conf.appwriteFollowsCollectionId,
             ID.unique(), {
-            followerId, followingId
+            followerId, followingId, followerName, followingName
         })
-        return comment
+        return follow
     } catch (error) {
         console.log("appwriteError :: createFollow :: error", error)
         throw error
@@ -147,7 +181,7 @@ export const getAllFollowing = async (queries = [Query.orderDesc("$createdAt")])
         return await database.listDocuments(
             conf.appwriteDatabaseId,
             conf.appwriteFollowsCollectionId,
-            queries
+            queries,
         )
     } catch (error) {
         console.log("appwriteError :: getAllFollowing :: error", error)

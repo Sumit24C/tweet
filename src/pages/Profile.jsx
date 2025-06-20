@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
     Container,
@@ -7,34 +7,32 @@ import {
     Avatar,
     Button,
     Divider,
+    CircularProgress,
     Stack,
-    Tabs,
-    Tab,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { CreatePostBtn, AddTweet, TweetCard } from '../components/index'
-import { getAllTweets } from '../appwrite/services'
-
+import { getAllFollowers } from '../appwrite/services';
+import { Query } from 'appwrite';
+import NavTabs from '../components/NavTabs';
+import { setFollower as storeSetFollower } from '../store/followSlice';
 
 function Profile() {
     const userData = useSelector((state) => state.auth.userData);
-    const [tweets, setTweeets] = useState([])
-    const [loading, setLoading] = useState(false)
-    useEffect(() => {
-        setLoading(true)
-        getAllTweets()
-            .then((tweets) => {
-                if (tweets) {
-                    setTweeets(tweets.documents.filter((tweet) => (userData.$id === tweet.userId)))
-                }
-            })
-            .catch((err) => console.log("getTweet :: error", err))
-            .finally(() => setLoading(false))
-    }, [tweets])
-    console.log("userID: ", userData.$id)
-    console.log(tweets)
-    return (
+    const followData = useSelector((state) => state.follow.followInfo);
+    const dispatch = useDispatch()
+    const [loading, setLoading] = useState(false);
+    const storeFollower = useSelector((state) => state.follow.followersInfo)
 
+    useEffect(() => {
+        if (!userData?.$id || storeFollower.length !== 0) return
+
+        setLoading(true)
+        getAllFollowers([Query.equal('followingId', userData.$id)])
+            .then((res) => dispatch(storeSetFollower(res.documents)))
+            .finally(() => setLoading(false))
+    }, [userData, dispatch, storeFollower])
+
+    return (
         <Container
             maxWidth={false}
             disableGutters
@@ -43,20 +41,14 @@ function Profile() {
                 minHeight: '100vh',
                 display: 'flex',
                 justifyContent: 'center',
-                overflowY: 'auto',
+                px: 2,
             }}
         >
             <Box sx={{ width: '100%', maxWidth: 600 }}>
                 {/* Banner */}
-                <Box
-                    sx={{
-                        height: 150,
-                        backgroundColor: '#2c2c2c',
-                        width: '100%',
-                    }}
-                />
+                <Box sx={{ height: '6vh', backgroundColor: '#2c2c2c', width: '100%' }} />
 
-                {/* Avatar, Name, Handle */}
+                {/* Avatar, Info */}
                 <Box sx={{ p: 2, mt: -6 }}>
                     <Avatar
                         sx={{
@@ -67,11 +59,11 @@ function Profile() {
                             border: '4px solid #121212',
                         }}
                     >
-                        {userData?.name?.[0]?.toUpperCase() || 'U'}
+                        {(userData?.name && userData.name.charAt(0).toUpperCase()) || 'U'}
                     </Avatar>
 
                     <Stack direction="row" alignItems="center" spacing={1} mt={1}>
-                        <Typography variant="h6" fontWeight="bold" color='white'>
+                        <Typography variant="h6" fontWeight="bold" color="white">
                             {userData?.name}
                         </Typography>
                         <Button
@@ -105,42 +97,28 @@ function Profile() {
                     </Typography>
 
                     <Stack direction="row" spacing={2} mt={1}>
-                        <Typography variant="body2" color='white'>
-                            <strong>1</strong> Following
-                        </Typography>
-                        <Typography variant="body2" color='white'>
-                            <strong>0</strong> Followers
-                        </Typography>
+                        {loading ? (
+                            <CircularProgress size={16} sx={{ color: 'white' }} />
+                        ) : (
+                            <>
+                                <Typography variant="body2" color="white">
+                                    <strong>{followData?.length || 0}</strong> Following
+                                </Typography>
+                                <Typography variant="body2" color="white">
+                                    <strong>{storeFollower?.length || 0}</strong> Followers
+                                </Typography>
+                            </>
+                        )}
                     </Stack>
                 </Box>
 
                 <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.1)' }} />
 
-                {/* Tweets */}
-                <Container
-                    maxWidth={false}
-                    disableGutters
-                    sx={{
-                        bgcolor: '#121212',
-                        minHeight: '100vh',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        overflowY: 'auto',
-                        py: 4,
-                    }}
-                >
-                    <div style={{ width: '100%', maxWidth: 600 }}>
-                        {tweets.map((tweet) => (
-                            <TweetCard key={tweet.$id} tweet={tweet} />
-                        ))}
-                    </div>
-                </Container>
-
-                {/* Setup Steps (Optional Placeholder) */}
-
+                {/* Nav Tabs - Now properly positioned for sticky behavior */}
+                <NavTabs />
             </Box>
         </Container>
-    )
+    );
 }
 
 export default Profile;
