@@ -24,8 +24,8 @@ import {
 function TweetCard({ tweet }) {
     const [showCommentBox, setShowCommentBox] = useState(false);
     const userData = useSelector((state) => state.auth.userData);
-    const followData = useSelector((state) => state.follow.followInfo);         // Following data
-    const globalReactionData = useSelector((state) => state.tweet.globalReactionData);
+    const followData = useSelector((state) => state.follow.followInfo);
+    const globalReactionData = useSelector((state) => state.tweet.globalReaction);
 
     const currentFollow = followData.find((follow) =>
         userData.$id === follow.followerId && tweet.userId === follow.followingId
@@ -35,14 +35,13 @@ function TweetCard({ tweet }) {
         userData.$id === reaction.userId && tweet.$id === reaction.tweetId
     ) : null
 
-
     return (
         <Box sx={{ m: 0, p: 0 }}>
             <Card
                 elevation={0}
                 sx={{
                     borderRadius: 0,
-                    border: '1px solid rgba(255,255,255,0.08)', // subtle bottom border like Twitter
+                    border: '1px solid rgba(255,255,255,0.08)',
                     backgroundColor: '#1e1e1e',
                     color: '#e0e0e0',
                     boxShadow: 'none',
@@ -73,7 +72,7 @@ function TweetCard({ tweet }) {
                     {userData.$id !== tweet.userId && (
                         <FollowBtn
                             key={tweet.$id}
-                            followId={currentFollow?.$id || null} // Pass the followId if exists, null otherwise
+                            followId={currentFollow?.$id || null}
                             followingId={tweet.userId}
                             followingName={tweet.username}
                         />
@@ -82,7 +81,7 @@ function TweetCard({ tweet }) {
 
                 {/* Content */}
                 <CardContent sx={{ mb: 0 }}>
-                    <Typography variant="body1" sx={{ mb: 2 }}>
+                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line', color: 'white', mb: 2 }}>
                         {tweet.content}
                     </Typography>
 
@@ -104,7 +103,6 @@ function TweetCard({ tweet }) {
                     <Stack direction="row" spacing={2} alignItems="center">
                         <ReactionCounter
                             tweetId={tweet.$id}
-                            reactionId={currentReaction?.$id || null}
                         />
                         <IconButton
                             size="medium"
@@ -138,8 +136,6 @@ function TweetCard({ tweet }) {
                     )}
                 </CardContent>
             </Card>
-
-            {/* Thin divider between tweets */}
         </Box >
     );
 }

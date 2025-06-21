@@ -8,7 +8,7 @@ import './App.css';
 import { Header } from './components/index';
 import { getAllComments, getAllFollowers, getAllFollowing, getAllReaction, getAllTweets } from './appwrite/services';
 import { setComment } from './store/commentSlice';
-import { setReaction, setTweet } from './store/tweetSlice';
+import { setReaction, setTweet, setGlobalReaction } from './store/tweetSlice';
 import { Query } from 'appwrite';
 import { setFollowing } from './store/followSlice';
 
@@ -18,18 +18,33 @@ function App() {
   const userData = useSelector((state) => state.auth.userData);
   const storeTweets = useSelector((state) => state.tweet.tweets)
   const storeReaction = useSelector((state) => state.tweet.reactionCount)
+  const globalReactionData = useSelector((state) => state.tweet.globalReaction)
   const storeFollow = useSelector((state) => state.follow.followInfo)
+
   useEffect(() => {
     if (!userData?.$id || storeTweets.length !== 0) return
     getAllTweets([Query.equal('userId', userData.$id)])
       .then((res) => dispatch(setTweet(res.documents)))
   }, [userData, dispatch, storeTweets.length])
 
+  // Load user's own reactions
   useEffect(() => {
     if (!userData?.$id || storeReaction.length !== 0) return
     getAllReaction([Query.equal('userId', userData.$id)])
       .then((res) => dispatch(setReaction(res.documents)))
   }, [userData, dispatch, storeReaction.length])
+
+  // Load ALL reactions globally for real-time updates
+  useEffect(() => {
+    if (!userData?.$id || globalReactionData.length !== 0) return
+
+    // Load all reactions without filtering by userId to get global state
+    getAllReaction([])
+      .then((res) => {
+        dispatch(setGlobalReaction(res.documents))
+      })
+      .catch((err) => console.error("Failed to load global reactions:", err))
+  }, [userData, dispatch, globalReactionData.length])
 
   useEffect(() => {
     if (!userData?.$id || storeComment.length !== 0) return
@@ -44,6 +59,7 @@ function App() {
     getAllFollowing([Query.equal('followerId', userData.$id)])
       .then((res) => dispatch(setFollowing(res.documents)))
   }, [userData, dispatch, storeFollow.length])
+
 
   return (
     <Box sx={{ margin: 0, padding: 0, minHeight: '100vh', bgcolor: '#121212' }}>

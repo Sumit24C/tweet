@@ -38,11 +38,9 @@ const tweetSlice = createSlice({
         setGlobalReaction: (state, action) => {
             state.globalReaction = action.payload
         },
-        // NEW: Add reaction to global reaction list
         addGlobalReaction: (state, action) => {
             state.globalReaction.push(action.payload)
         },
-        // NEW: Remove reaction from global reaction list
         removeGlobalReaction: (state, action) => {
             state.globalReaction = state.globalReaction.filter((reaction) => reaction.$id !== action.payload)
         }

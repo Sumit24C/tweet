@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { createReaction, deleteReaction, getAllReaction } from '../appwrite/services';
+import React, { useCallback, useMemo } from 'react'
+import { createReaction, deleteReaction } from '../appwrite/services';
 import {
     Typography,
     IconButton,
@@ -7,15 +7,11 @@ import {
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { useDispatch, useSelector } from 'react-redux';
-import { addReaction, removeReaction, addGlobalReaction, removeGlobalReaction, setGlobalReaction } from '../store/tweetSlice';
-import { Query } from 'appwrite';
+import { addGlobalReaction, removeGlobalReaction } from '../store/tweetSlice';
 
 function ReactionCounter({ tweetId, initialCount = 0 }) {
     const userData = useSelector((state) => state.auth.userData)
-    const reactionData = useSelector((state) => state.tweet.reactionCount);
     const globalReactionData = useSelector((state) => state.tweet.globalReaction);
-    const [loading, setLoading] = useState(false)
-    const [hasLoadedReactions, setHasLoadedReaction] = useState(false)
     const dispatch = useDispatch()
 
     // Find the current user's reaction (returns object if exists, undefined if not)
@@ -27,56 +23,48 @@ function ReactionCounter({ tweetId, initialCount = 0 }) {
     // Derive isLiked from currentUserReaction
     const isLiked = Boolean(currentUserReaction);
 
+    // Count all reactions for this tweet
     const count = useMemo(() =>
         globalReactionData.filter(reaction => reaction.tweetId === tweetId).length,
         [globalReactionData, tweetId]
     );
 
-    // Load reactions only once per tweetId
-    useEffect(() => {
-        if (!hasLoadedReactions && userData?.$id) {
-            setLoading(true)
-            getAllReaction([Query.equal('tweetId', tweetId)])
-                .then((reaction) => {
-                    if (reaction?.documents) {
-                        dispatch(setGlobalReaction(reaction.documents))
-                        setHasLoadedReaction(true)
-                    }
-                })
-                .catch((err) => console.error("getGlobalReaction :: error", err))
-                .finally(() => setLoading(false))
-        }
-    }, [hasLoadedReactions, tweetId, dispatch, userData?.$id])
-
     // Memoize the click handler to prevent recreation on every render
     const handleClick = useCallback(async () => {
-        if (!userData?.$id || loading) return;
+        if (!userData?.$id) return;
 
-        setLoading(true)
         try {
             if (isLiked && currentUserReaction) {
-                await deleteReaction(currentUserReaction.$id);
-                dispatch(removeReaction(currentUserReaction.$id));
+                // Optimistically remove from UI first
                 dispatch(removeGlobalReaction(currentUserReaction.$id));
+
+                // Then delete from backend
+                await deleteReaction(currentUserReaction.$id);
                 console.log('Unliked successfully');
             } else {
+                // Create reaction in backend first
                 const reaction = await createReaction({
                     userId: userData.$id,
                     tweetId: tweetId,
                 });
-                dispatch(addReaction(reaction));
+
+                // Then add to UI
                 dispatch(addGlobalReaction(reaction));
                 console.log('Liked successfully');
             }
         } catch (error) {
             console.error("Like/Unlike error:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, [userData?.$id, loading, isLiked, currentUserReaction, tweetId, dispatch]);
 
-    // Show initial count if reactions haven't loaded yet
-    const displayCount = hasLoadedReactions ? count : initialCount;
+            // Revert optimistic update on error
+            if (isLiked && currentUserReaction) {
+                dispatch(addGlobalReaction(currentUserReaction));
+            } else {
+                // If we added optimistically but backend failed, we need to remove it
+                // This would require storing the temporary reaction, but for now just log the error
+                console.error("Failed to create reaction, UI may be out of sync");
+            }
+        }
+    }, [userData?.$id, isLiked, currentUserReaction, tweetId, dispatch]);
 
     // Don't render if user data isn't available
     if (!userData?.$id) {
@@ -88,16 +76,11 @@ function ReactionCounter({ tweetId, initialCount = 0 }) {
             <IconButton
                 size="small"
                 onClick={handleClick}
-                disabled={loading}
                 aria-label={isLiked ? "Unlike" : "Like"}
                 sx={{
                     color: isLiked ? '#ba68c8' : '#888',
                     '&:hover': {
                         color: '#ba68c8',
-                    },
-                    '&.Mui-disabled': {
-                        color: isLiked ? '#ba68c8' : '#888',
-                        opacity: 0.7,
                     },
                 }}
             >
@@ -112,7 +95,7 @@ function ReactionCounter({ tweetId, initialCount = 0 }) {
                     ml: 0.5,
                 }}
             >
-                {displayCount}
+                {count}
             </Typography>
         </Box>
     )
