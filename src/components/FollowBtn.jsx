@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { addFollow } from '../store/followSlice';
+import { addFollow, removeFollow } from '../store/followSlice';
 import { createFollow, unFollow } from '../appwrite/services';
 
 function FollowBtn({ followId, followingId, followingName }) {
@@ -9,24 +9,19 @@ function FollowBtn({ followId, followingId, followingName }) {
     const [loading, setLoading] = useState(false);
     const userData = useSelector((state) => state.auth.userData);
     const followData = useSelector((state) => state.follow.followInfo);
-    const [followingIds, setFollowingIds] = useState([]);
 
-    useEffect(() => {
-        const ids = followData.map((follow) => follow.followingId);
-        setFollowingIds(ids);
-    }, [followData]);
-
-    const isFollowing = followingIds.includes(followingId);
+    const isFollowing = followData.some(follow =>
+        follow.followerId === userData.$id && follow.followingId === followingId
+    );
     const handleFollowBtn = async () => {
 
         setLoading(true);
-        if (isFollowing) {
-            unFollow(followId)
-                .then(() => console.log('deleted'))
-                .catch((error) => console.error("unFollow error:", error))
-                .finally(() => setLoading(false))
-        } else {
-            try {
+        try {
+            if (isFollowing && followId) {
+                await unFollow(followId);
+                dispatch(removeFollow(followId));
+                console.log('Unfollowed successfully');
+            } else {
                 const follow = await createFollow({
                     followerId: userData.$id,
                     followingId: followingId,
@@ -34,11 +29,12 @@ function FollowBtn({ followId, followingId, followingName }) {
                     followingName: followingName,
                 });
                 dispatch(addFollow(follow));
-            } catch (error) {
-                console.error("Follow error:", error);
-            } finally {
-                setLoading(false);
+                console.log('Followed successfully');
             }
+        } catch (error) {
+            console.error("Follow/Unfollow error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { deleteTweet, getFileView } from '../appwrite/services';
+import { deleteTweet, getAllReaction, getFileView } from '../appwrite/services';
 import {
     Card,
     CardMedia,
@@ -12,7 +12,7 @@ import {
     Box,
 } from '@mui/material';
 import CommentIcon from '@mui/icons-material/Comment';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     AllComments,
     CommentForm,
@@ -24,6 +24,17 @@ import {
 function TweetCard({ tweet }) {
     const [showCommentBox, setShowCommentBox] = useState(false);
     const userData = useSelector((state) => state.auth.userData);
+    const followData = useSelector((state) => state.follow.followInfo);         // Following data
+    const globalReactionData = useSelector((state) => state.tweet.globalReactionData);
+
+    const currentFollow = followData.find((follow) =>
+        userData.$id === follow.followerId && tweet.userId === follow.followingId
+    );
+
+    const currentReaction = globalReactionData ? globalReactionData.find((reaction) =>
+        userData.$id === reaction.userId && tweet.$id === reaction.tweetId
+    ) : null
+
 
     return (
         <Box sx={{ m: 0, p: 0 }}>
@@ -60,7 +71,12 @@ function TweetCard({ tweet }) {
                     </Stack>
 
                     {userData.$id !== tweet.userId && (
-                        <FollowBtn key={tweet.$id} followingId={tweet.userId} followingName={tweet.username} />
+                        <FollowBtn
+                            key={tweet.$id}
+                            followId={currentFollow?.$id || null} // Pass the followId if exists, null otherwise
+                            followingId={tweet.userId}
+                            followingName={tweet.username}
+                        />
                     )}
                 </Stack>
 
@@ -86,7 +102,10 @@ function TweetCard({ tweet }) {
 
                     {/* Action Bar */}
                     <Stack direction="row" spacing={2} alignItems="center">
-                        <ReactionCounter tweetId={tweet.$id} initialCount={tweet.reactionCount} />
+                        <ReactionCounter
+                            tweetId={tweet.$id}
+                            reactionId={currentReaction?.$id || null}
+                        />
                         <IconButton
                             size="medium"
                             onClick={() => setShowCommentBox(prev => !prev)}

@@ -10,14 +10,14 @@ const storage = new Storage(client)
 const database = new Databases(client)
 
 //Tweet services
-export const createTweet = async ({ content, tweetImage, reactionCount, userId, username }) => {
+export const createTweet = async ({ content, tweetImage, userId, username }) => {
     try {
         const tweet = await database.createDocument(
             conf.appwriteDatabaseId,
             conf.appwriteTweetsCollectionId,
             ID.unique(),
             {
-                content, tweetImage, reactionCount, userId, username
+                content, tweetImage, userId, username
             }
         )
         return tweet
@@ -64,7 +64,7 @@ export const deleteTweet = async (tweetId, tweetImage) => {
         }
 
         await deleteCommentWithTweet(tweetId)
-
+        await deleteReactionWithTweet(tweetId)
         await database.deleteDocument(
             conf.appwriteDatabaseId,
             conf.appwriteTweetsCollectionId,
@@ -103,6 +103,80 @@ export const deleteCommentWithTweet = async (tweetId = "") => {
         throw error
     }
 }
+export const createReaction = async ({ userId, tweetId, liked }) => {
+    try {
+        const reaction = await database.createDocument(
+            conf.appwriteDatabaseId,
+            conf.appwriteReactionsCollectionId,
+            ID.unique(),
+            {
+                userId, tweetId, liked
+            }
+        )
+        return reaction
+    } catch (error) {
+        console.log("appwriteError :: createReaction :: error", error)
+        throw error
+    }
+}
+
+
+export const getAllReaction = async (queries = [Query.orderDesc("$createdAt")]) => {
+    try {
+        return await database.listDocuments(
+            conf.appwriteDatabaseId,
+            conf.appwriteReactionsCollectionId,
+            queries
+        )
+    } catch (error) {
+        console.log("appwriteError :: getAllReactions :: error", error)
+        throw error
+    }
+}
+
+export const deleteReaction = async (reactionId) => {
+    try {
+
+        await database.deleteDocument(
+            conf.appwriteDatabaseId,
+            conf.appwriteReactionsCollectionId,
+            reactionId
+        )
+        return true
+
+    } catch (error) {
+        console.log("appwriteError :: deleteReaction :: error", error)
+        throw error
+    }
+}
+
+export const deleteReactionWithTweet = async (tweetId = "") => {
+    try {
+        const reactionList = await database.listDocuments(
+            conf.appwriteDatabaseId,
+            conf.appwriteReactionsCollectionId,
+            [Query.equal('tweetId', tweetId)]
+        )
+        if (reactionList) {
+            const deletionPromise = reactionList.documents.map(async (reaction) => {
+                await database.deleteDocument(
+                    conf.appwriteDatabaseId,
+                    conf.appwriteReactionsCollectionId,
+                    reaction.$id
+                )
+            })
+
+            await Promise.all(deletionPromise)
+            return true
+        }
+        return false
+    } catch (error) {
+        console.log("appwriteError :: cascaded delete reaction :: error", error)
+        throw error
+    }
+}
+
+
 
 //Comment Services 
 export const createComment = async ({ userId, username, tweetId, content }) => {

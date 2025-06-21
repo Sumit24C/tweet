@@ -3,9 +3,8 @@ import { deleteFile, deleteTweet, getFileView } from '../appwrite/services';
 import { IconButton, CircularProgress, Tooltip } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteTweet as storeTweetDelete } from '../appwrite/services';
-
-function DeleteTweetBtn({ tweetId, tweetImage }) {
+import { deleteTweet as deleteTweetAction } from '../store/tweetSlice'; // or wherever your slice is
+function DeleteTweetBtn({ tweetId, tweetImage, }) {
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()
 
@@ -13,7 +12,8 @@ function DeleteTweetBtn({ tweetId, tweetImage }) {
         setLoading(true)
         try {
             await deleteTweet(tweetId, tweetImage)
-            dispatch(storeTweetDelete(tweetId))
+            dispatch(deleteTweetAction(tweetId))
+
         } catch (error) {
             console.log("handleDelete :: deleteTweet :: error", error)
             throw error
@@ -38,7 +38,12 @@ function DeleteTweetBtn({ tweetId, tweetImage }) {
                     disabled={loading}
                 >
                     {loading ? (
-                        <CircularProgress size={20} thickness={5} color="white" />
+                        // FIX: Use sx prop for custom color
+                        <CircularProgress
+                            size={20}
+                            thickness={5}
+                            sx={{ color: 'white' }}
+                        />
                     ) : (
                         <DeleteOutlineIcon />
                     )}

@@ -15,8 +15,10 @@ import { getAllFollowers } from '../appwrite/services';
 import { Query } from 'appwrite';
 import NavTabs from '../components/NavTabs';
 import { setFollower as storeSetFollower } from '../store/followSlice';
+import { useParams } from 'react-router-dom';
 
 function Profile() {
+    const { id } = useParams()
     const userData = useSelector((state) => state.auth.userData);
     const followData = useSelector((state) => state.follow.followInfo);
     const dispatch = useDispatch()

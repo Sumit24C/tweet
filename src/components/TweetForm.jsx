@@ -16,12 +16,12 @@ import CloseIcon from '@mui/icons-material/Close'
 import { createTweet, uploadFile } from '../appwrite/services'
 import { addTweet } from '../store/tweetSlice'
 
-function TweetForm({ tweet, closeModal }) {
+function TweetForm({ tweet, closeModal, handleNewTweet }) {
     const userData = useSelector((state) => state.auth.userData)
     const [loading, setLoading] = useState(false)
     const [selectedImage, setSelectedImage] = useState(null)
     const [imagePreview, setImagePreview] = useState(null)
-
+    const [newTweet, setNewTweet] = useState({})
     const { register, handleSubmit, reset, setValue, watch } = useForm()
     const dispatch = useDispatch()
 
@@ -53,6 +53,7 @@ function TweetForm({ tweet, closeModal }) {
                 };
                 const postTweet = await createTweet(tweetData)
                 dispatch(addTweet(postTweet))
+                handleNewTweet(postTweet)
                 reset()
                 setSelectedImage(null)
                 setImagePreview(null)

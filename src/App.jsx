@@ -6,9 +6,9 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import './App.css';
 import { Header } from './components/index';
-import { getAllComments, getAllFollowers, getAllFollowing, getAllTweets } from './appwrite/services';
+import { getAllComments, getAllFollowers, getAllFollowing, getAllReaction, getAllTweets } from './appwrite/services';
 import { setComment } from './store/commentSlice';
-import { setTweet } from './store/tweetSlice';
+import { setReaction, setTweet } from './store/tweetSlice';
 import { Query } from 'appwrite';
 import { setFollowing } from './store/followSlice';
 
@@ -17,12 +17,19 @@ function App() {
   const storeComment = useSelector((state) => state.comment.comments)
   const userData = useSelector((state) => state.auth.userData);
   const storeTweets = useSelector((state) => state.tweet.tweets)
+  const storeReaction = useSelector((state) => state.tweet.reactionCount)
   const storeFollow = useSelector((state) => state.follow.followInfo)
   useEffect(() => {
     if (!userData?.$id || storeTweets.length !== 0) return
     getAllTweets([Query.equal('userId', userData.$id)])
       .then((res) => dispatch(setTweet(res.documents)))
   }, [userData, dispatch, storeTweets.length])
+
+  useEffect(() => {
+    if (!userData?.$id || storeReaction.length !== 0) return
+    getAllReaction([Query.equal('userId', userData.$id)])
+      .then((res) => dispatch(setReaction(res.documents)))
+  }, [userData, dispatch, storeReaction.length])
 
   useEffect(() => {
     if (!userData?.$id || storeComment.length !== 0) return

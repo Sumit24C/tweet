@@ -39,6 +39,24 @@ const AppRouter = createBrowserRouter([
           }
         ]
       },
+      {
+        path: 'profile/:id',
+        element: <Profile />,
+        children: [
+          {
+            index: true,
+            element: <MyPosts />
+          },
+          {
+            path: 'followers',
+            element: <Follow path={'followers'} />
+          },
+          {
+            path: 'following',
+            element: <Follow path={'following'} />
+          }
+        ]
+      },
     ],
   },
   {

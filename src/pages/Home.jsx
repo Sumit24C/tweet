@@ -1,5 +1,5 @@
-import { CircularProgress, Box, Modal, Button, Container } from '@mui/material';
-import React, { useEffect, useState, useRef } from 'react'
+import { CircularProgress, Box, Modal, Button, Container, useScrollTrigger } from '@mui/material';
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { getAllTweets } from '../appwrite/services'
 import { useSelector } from 'react-redux'
 import { CreatePostBtn, TweetForm, TweetCard } from '../components/index'
@@ -7,11 +7,14 @@ import { CreatePostBtn, TweetForm, TweetCard } from '../components/index'
 
 function Home() {
     const [tweets, setTweets] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [newTweet, setNewTweet] = useState({})
+    const [deletedTweet, setDeletedTweet] = useState([])
+    const [loading, setLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef()
     const storeTweets = useSelector((state) => state.tweet.tweets)
     const authStatus = useSelector((state) => state.auth.status)
+
     useEffect(() => {
         if (authStatus) {
             setLoading(true)
@@ -26,6 +29,26 @@ function Home() {
         }
     }, [storeTweets, authStatus])
 
+    const handleNewTweet = useCallback((newValue) => {
+        setNewTweet(newValue)
+    }, [])
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '100vh',
+                    bgcolor: '#121212',
+                }}
+            >
+                <CircularProgress size={32} sx={{ color: 'white' }} />
+            </Box>
+        )
+    }
+
     return (
         <>
             <CreatePostBtn ref={ref} setIsOpen={setIsOpen} />
@@ -34,7 +57,7 @@ function Home() {
                 onClose={() => setIsOpen(false)}
                 sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200 }}
             >
-                <TweetForm closeModal={() => setIsOpen(false)} />
+                <TweetForm closeModal={() => setIsOpen(false)} handleNewTweet={handleNewTweet} />
             </Modal>
             <Container
                 maxWidth={false}
@@ -53,7 +76,7 @@ function Home() {
                         <TweetCard key={tweet.$id} tweet={tweet} />
                     ))}
                 </div>
-            </Container>
+            </Container >
         </>
     )
 }
