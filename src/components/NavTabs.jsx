@@ -5,10 +5,10 @@ import {
 } from '@mui/material';
 import { NavLink, Outlet, } from 'react-router-dom'
 
-function NavTabs() {
+function NavTabs({ id }) {
 
     const tabItems = [
-        { label: 'My Posts', path: '.' },
+        { label: 'Posts', path: '.' },
         { label: 'Followers', path: 'followers' },
         { label: 'Following', path: 'following' },
     ];
@@ -48,7 +48,7 @@ function NavTabs() {
 
             {/* Routed Tab Content */}
             <Box sx={{ py: 2 }}>
-                <Outlet />
+                <Outlet id={id} />
             </Box>
         </div>
     )

@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { getAllTweets } from '../appwrite/services'
 import { useSelector } from 'react-redux'
 import { CreatePostBtn, TweetForm, TweetCard } from '../components/index'
-
+import { LoadingPage } from '../components/index'
 
 function Home() {
     const [tweets, setTweets] = useState([])
@@ -34,19 +34,8 @@ function Home() {
     }, [])
 
     if (loading) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: '100vh',
-                    bgcolor: '#121212',
-                }}
-            >
-                <CircularProgress size={32} sx={{ color: 'white' }} />
-            </Box>
-        )
+        // Use tweet variant with container for full page loading
+        return <LoadingPage variant="tweet" count={4} showContainer={true} />;
     }
 
     return (
@@ -73,7 +62,7 @@ function Home() {
             >
                 <div style={{ width: '100%', maxWidth: 600 }}>
                     {tweets.map((tweet) => (
-                        <TweetCard key={tweet.$id} tweet={tweet} />
+                        <TweetCard key={tweet.$id} tweet={tweet} userId={tweet.userId} />
                     ))}
                 </div>
             </Container >

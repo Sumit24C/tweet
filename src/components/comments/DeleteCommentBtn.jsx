@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { deleteComment, deleteFile, deleteTweet, getFileView } from '../appwrite/services';
+import { deleteComment, deleteFile, deleteTweet, getFileView } from '../../appwrite/services';
 import {
     IconButton,
 } from '@mui/material';

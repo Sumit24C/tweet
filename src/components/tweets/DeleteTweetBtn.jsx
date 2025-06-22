@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { deleteFile, deleteTweet, getFileView } from '../appwrite/services';
+import { deleteFile, deleteTweet, getFileView } from '../../appwrite/services';
 import { IconButton, CircularProgress, Tooltip } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteTweet as deleteTweetAction } from '../store/tweetSlice'; // or wherever your slice is
+import { deleteTweet as deleteTweetAction } from '../../store/tweetSlice'; // or wherever your slice is
 function DeleteTweetBtn({ tweetId, tweetImage, }) {
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()

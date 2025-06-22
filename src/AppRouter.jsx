@@ -1,8 +1,8 @@
 import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
-import { TweetForm, AuthLayout, MyPosts, FollowCard } from './components/index';
-import { Profile, Home, Login, Signup, Follow } from './pages/index';
+import { TweetForm, AuthLayout, FollowCard } from './components/index';
+import { Profile, Home, Login, Signup, Follow, MyPosts } from './pages/index';
 
 const AppRouter = createBrowserRouter([
   {

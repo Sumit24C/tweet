@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     followInfo: [],
     followersInfo: [],
+    userFollowersInfo: [],
+    userFollowingsInfo: [],
 }
 
 const followSlice = createSlice({
@@ -20,9 +22,15 @@ const followSlice = createSlice({
         },
         removeFollow: (state, action) => {
             state.followInfo = state.followInfo.filter((follow) => follow.$id !== action.payload)
-        }
+        },
+        setUserFollower: (state, action) => {
+            state.userFollowersInfo = action.payload
+        },
+        setUserFollowing: (state, action) => {
+            state.userFollowingsInfo = action.payload
+        },
     }
 })
 
-export const { setFollowing, addFollow, removeFollow, setFollower } = followSlice.actions
+export const { setFollowing, addFollow, removeFollow, setFollower, setUserFollower, setUserFollowing } = followSlice.actions
 export default followSlice.reducer

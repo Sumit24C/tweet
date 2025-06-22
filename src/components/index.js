@@ -1,20 +1,13 @@
 
 import Header from "./Header";
 import LogoutBtn from "./LogoutBtn";
-import TweetForm from './TweetForm'
-import TweetCard from "./TweetCard";
-import ReactionCounter from './ReactionCounter'
-import CommentForm from "./CommentForm";
-import AllComments from "./AllComments";
-import CreatePostBtn from "./CreatePostBtn";
-import DeleteTweetBtn from "./DeleteTweetBtn";
-import DeleteCommentBtn from "./DeleteCommentBtn";
-import FollowBtn from "./FollowBtn";
-import CommentCard from "./CommentCard";
 import AuthLayout from "./AuthLayout";
-import MyPosts from './MyPosts'
-import FollowCard from './FollowCard'
+import CreatePostBtn from './CreatePostBtn'
 import NavTabs from "./NavTabs";
+import { TweetCard, TweetForm, ReactionCounter, DeleteTweetBtn } from "./tweets";
+import { CommentBtn, AllComments, CommentForm, CommentCard, DeleteCommentBtn } from "./comments";
+import { FollowBtn, FollowCard } from "./follows";
+import LoadingPage from "./LoadingPage";
 export {
     LogoutBtn,
     Header,
@@ -29,7 +22,7 @@ export {
     FollowBtn,
     CommentCard,
     AuthLayout,
-    MyPosts,
     FollowCard,
-    NavTabs
+    NavTabs,
+    LoadingPage
 }

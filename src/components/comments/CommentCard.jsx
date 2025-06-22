@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { getAllComments } from '../appwrite/services';
 import {
     Box,
     Typography,
@@ -7,7 +6,6 @@ import {
     Stack,
     CircularProgress,
 } from '@mui/material';
-import DeleteCommentBtn from './DeleteCommentBtn';
 
 function CommentCard({ comment }) {
     return (

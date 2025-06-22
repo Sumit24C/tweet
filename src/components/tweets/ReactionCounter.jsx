@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react'
-import { createReaction, deleteReaction } from '../appwrite/services';
+import { createReaction, deleteReaction } from '../../appwrite/services';
 import {
     Typography,
     IconButton,
@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { useDispatch, useSelector } from 'react-redux';
-import { addGlobalReaction, removeGlobalReaction } from '../store/tweetSlice';
+import { addGlobalReaction, removeGlobalReaction } from '../../store/tweetSlice';
 
 function ReactionCounter({ tweetId, initialCount = 0 }) {
     const userData = useSelector((state) => state.auth.userData)

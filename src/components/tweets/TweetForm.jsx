@@ -13,8 +13,8 @@ import {
 } from '@mui/material'
 import ImageIcon from '@mui/icons-material/Image'
 import CloseIcon from '@mui/icons-material/Close'
-import { createTweet, uploadFile } from '../appwrite/services'
-import { addTweet } from '../store/tweetSlice'
+import { createTweet, uploadFile } from '../../appwrite/services'
+import { addTweet } from '../../store/tweetSlice'
 
 function TweetForm({ tweet, closeModal, handleNewTweet }) {
     const userData = useSelector((state) => state.auth.userData)
@@ -50,6 +50,7 @@ function TweetForm({ tweet, closeModal, handleNewTweet }) {
                     tweetImage: file?.$id || null,
                     userId: userData.$id,
                     username: userData.name,
+                    userCreatedAt: userData.$createdAt,
                 };
                 const postTweet = await createTweet(tweetData)
                 dispatch(addTweet(postTweet))

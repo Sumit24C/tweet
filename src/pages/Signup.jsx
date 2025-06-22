@@ -65,7 +65,11 @@ function Signup() {
                     label="Username"
                     fullWidth
                     variant="filled"
-                    {...register('username', { required: 'Username is required' })}
+                    {...register('username', {
+                        required: 'Username is required',
+                        validate: (value) =>
+                            /^[a-zA-Z0-9]+$/.test(value) || 'Don\'t use space or special characters',
+                    })}
                     error={!!errors.username}
                     helperText={errors.username?.message}
                     InputProps={{

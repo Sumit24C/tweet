@@ -12,8 +12,8 @@ import {
 import ImageIcon from '@mui/icons-material/Image';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import SendIcon from '@mui/icons-material/Send';
-import { createComment, createTweet } from '../appwrite/services';
-import { addComment } from '../store/commentSlice';
+import { createComment, createTweet } from '../../appwrite/services';
+import { addComment } from '../../store/commentSlice';
 
 function CommentForm({ tweetId, userId, username, setComment }) {
     const { register, handleSubmit, reset } = useForm();

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { addFollow, removeFollow } from '../store/followSlice';
-import { createFollow, unFollow } from '../appwrite/services';
+import { addFollow, removeFollow } from '../../store/followSlice';
+import { createFollow, unFollow } from '../../appwrite/services';
 
 function FollowBtn({ followId, followingId, followingName }) {
     const dispatch = useDispatch();

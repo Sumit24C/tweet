@@ -10,14 +10,14 @@ const storage = new Storage(client)
 const database = new Databases(client)
 
 //Tweet services
-export const createTweet = async ({ content, tweetImage, userId, username }) => {
+export const createTweet = async ({ content, tweetImage, userId, username, userCreatedAt }) => {
     try {
         const tweet = await database.createDocument(
             conf.appwriteDatabaseId,
             conf.appwriteTweetsCollectionId,
             ID.unique(),
             {
-                content, tweetImage, userId, username
+                content, tweetImage, userId, username, userCreatedAt
             }
         )
         return tweet
